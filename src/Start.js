@@ -5,8 +5,8 @@ import FormInput from "./components/FormInput";
 
 function Start() {
 	const [state, setState] = useState({
-		apikey: "6cf383a0-b633-432d-902c-7b2cee43dfb6",
-		apisecret: "e268c979-43d7-4879-93a0-1f05729ab215",
+		apikey: "",
+		apisecret: "",
 		url: "demo",
 		error: "",
 		source: "qaservers"
@@ -67,6 +67,7 @@ function Start() {
 
 	const handleSource = (e) => {
 		const value = e.target.value;
+		state.url = "alto";
 		setState({
 			...state,
 			[e.target.name]: value,
@@ -130,7 +131,8 @@ function Start() {
 							:
 							(Object.keys(productiontext).map(typeId => (
 								<option value={typeId}>{productiontext[typeId]}</option>
-							)))}
+							)))
+						}
 					</select>
 				</label>
 

@@ -69,8 +69,6 @@ function App() {
                 var t0 = performance.now();
                 detect();
                 var t1 = performance.now();
-                //console.log(`detect took ${t1 - t0} milliseconds.`);
-                //console.log(" ----- ");
             }
         }, 100);
     };
@@ -111,11 +109,6 @@ function App() {
             const api = await predictions(screen);
             boxes.current = api;
             console.log(boxes.current);
-            // console.log(`Call to api took ${t1 - t0} milliseconds.`);
-
-            //const ctx = canvasRef.current.getContext("2d");
-            //if(api.predictions.length > 0) drawRect(api, ctx);
-            //drawRect2(obj, ctx);
         }
         detectFlag.current = true;
     };
@@ -162,7 +155,6 @@ function App() {
                         //video={{ facingMode: { exact: "environment" } }}
                         videoConstraints={{ deviceId }}
                         screenshotFormat="image/jpeg"
-                        //className="webcamCapture"
                         style={{
                         position: "absolute",
                         marginLeft: "auto",

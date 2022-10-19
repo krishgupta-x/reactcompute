@@ -33,14 +33,16 @@ function App() {
         token: "",
         clickIndex: -1,
         project: "",
+        projectItems: "",
         scene: "",
+        sceneItems: "",
         experiment: "",
+        experimentItems: "",
         run: "",
+        runItems: "",
         url: "",
         apikey: "",
         apisecret: "",
-        prevIndex: 0,
-        prevItems: "",
     });
 
     const handleDevices = React.useCallback(
@@ -69,7 +71,6 @@ function App() {
         var token = await getToken();
         if(token == "error") state.current = "Error";
         else {
-            console.log("token data")
             state.token = token.trim();
             if(state.current == "Projects") projectData();
         }
@@ -81,90 +82,68 @@ function App() {
         var newItems = [];
         if(data == "error") state.current = "Error";
         else {
-            console.log("project data");
             for(var i = 0; i < data.length; i++) {
                 newItems.push(data[i]);
             }
             update(newItems);
         }
+        state.projectItems = items;
     }
 
     async function sceneData(index, back){
         state.current = "Scenes";
-        //console.log("index + scene: " + items[state.prevIndex].id);
-        if(back){
-            console.log(state.prevItems);
-            console.log(state.prevIndex);
-            console.log(state.prevItems[state.prevIndex].id);
-            state.project = state.prevItems[state.prevIndex].id;
-        }
-        else state.project = items[index].id;
-        console.log("index + scene: " + state.project);
+        if(back == false) state.project = items[index].id;
         var data = await getScenes(state.token);
         var newItems = [];
         if(data == "error") state.current = "Error";
         else {
-            console.log("scene data");
             for(var i = 0; i < data.length; i++) {
                 newItems.push(data[i]);
             }
             update(newItems);
         }
-        state.prevIndex = index;
-        state.prevItems = items;
+        state.sceneItems = items;
     }
 
     async function experisData(index, back){
         state.current = "Experiments";
-        //console.log("index + exper: " + items[state.prevIndex].id);
-        if(back) state.scene = state.prevItems[state.prevIndex].id;
-        else state.scene = items[index].id;
-        console.log("index + exper: " + state.scene);
+        if(back == false) state.scene = items[index].id;
         var data = await getExperiments(state.token);
         var newItems = [];
         if(data == "error") state.current = "Error";
         else {
-            console.log("experi data");
             for(var i = 0; i < data.length; i++) {
                 if(data[i].name == null) data[i].name = data[i].id;
                 newItems.push(data[i]);
             }
             update(newItems);
         }
-        state.prevIndex = index;
-        state.prevItems = items;
+        state.experimentItems = items;
     }
 
     async function runData(index, back){
         state.current = "Runs";
-        //console.log("index + run: " + items[state.prevIndex].id);
-        if(back) state.experiment = state.prevItems[state.prevIndex].id;
-        else state.experiment = items[index].id;
+        if(back == false) state.experiment = items[index].id;
         var data = await getRuns(state.token);
         var newItems = [];
         if(data == "error") state.current = "Error";
         else {
-            console.log("run data");
             for(var i = 0; i < data.length; i++) {
                 if(data[i].name == null) data[i].name = data[i].id;
                 newItems.push(data[i]);
             }
             update(newItems);
         }
-        state.prevIndex = index;
-        state.prevItems = items;
+        state.runItems = items;
     }
 
     async function predictData(index){
         state.current = "Runs";
-        //console.log("index + predict: " + items[state.prevIndex].id);
         state.run = items[index].id;
         var data = state.token;
         var run = state.run;
         var exper = state.experiment;
         var url = state.url;
-        state.prevIndex = index;
-        state.prevItems = items;
         navigate("/detect/run", {
             state: {
                 url,
@@ -184,7 +163,6 @@ function App() {
 			'client_id': state.apikey,
 			'client_secret': state.apisecret
 		});
-        console.log(state.url + "/api/auth", data);
         return axios.post(state.url + "/api/auth", data,
 		{
 			method: 'post',
@@ -196,7 +174,6 @@ function App() {
     }
 
     async function getProjects(token) {
-        console.log(state.url + "/api/ar/data/projects/");
 		return axios.get(state.url + "/api/ar/data/projects/", {
 			headers: {
 				Accept: "application/json",
@@ -207,7 +184,6 @@ function App() {
     }
 
     async function getScenes(token) {
-        console.log(state.url + "/api/ar/data/projects/" + state.project + "/scenes");
         return axios.get(state.url + "/api/ar/data/projects/" + state.project + "/scenes", {
 			headers: {
 				Accept: "application/json",
@@ -218,7 +194,6 @@ function App() {
     }
 
     async function getExperiments(token, scene) {
-        console.log(state.url + "/api/ar/data/scenes/" + state.scene + "/experiments");
 		return axios.get(state.url + "/api/ar/data/scenes/" + state.scene + "/experiments", {
 			headers: {
 				Accept: "application/json",
@@ -229,7 +204,6 @@ function App() {
     }
 
     async function getRuns(token, experiment) {
-        console.log(state.url + "/api/ar/data/experiments/" + state.experiment + "/run");
 		return axios.get(state.url + "/api/ar/data/experiments/" + state.experiment + "/run", {
 			headers: {
 				Accept: "application/json",
@@ -251,7 +225,6 @@ function App() {
     };
 
     const handleBack = () => {
-        //console.log("prev: " + items[state.prevIndex].id);
         if(state.current == "Scenes") projectData(state.prevIndex, true);
         else if(state.current == "Experiments") sceneData(state.prevIndex, true);
         else if(state.current == "Runs") experisData(state.prevIndex, true);

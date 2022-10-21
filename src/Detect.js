@@ -153,7 +153,10 @@ function App() {
                         muted={true}
                         //video={{ facingMode: "user"}}
                         //video={{ facingMode: { exact: "environment" } }}
-                        videoConstraints={{ deviceId }}
+                        videoConstraints={{
+				device: deviceId,
+				facingMode: { exact: "environment" },
+			}}
                         screenshotFormat="image/jpeg"
                         style={{
                         position: "absolute",

@@ -5,8 +5,8 @@ import FormInput from "./components/FormInput";
 
 function Start() {
 	const [state, setState] = useState({
-		apikey: "63d6501b-73f6-4407-a962-8bc71069e365",
-		apisecret: "ff5c2713-37d9-42fa-8590-fd5cea8c2038",
+		apikey: "",
+		apisecret: "",
 		url: "demo",
 		error: "",
 		source: "qaservers"

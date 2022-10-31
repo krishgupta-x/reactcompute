@@ -5,8 +5,8 @@ import FormInput from "./components/FormInput";
 
 function Start() {
 	const [state, setState] = useState({
-		apikey: "",
-		apisecret: "",
+		apikey: "63d6501b-73f6-4407-a962-8bc71069e365",
+		apisecret: "ff5c2713-37d9-42fa-8590-fd5cea8c2038",
 		url: "demo",
 		error: "",
 		source: "qaservers"
@@ -15,7 +15,7 @@ function Start() {
 	let navigate = useNavigate();
 
 	function handleContinue() {
-		var apikey = state.apikey, apisecret = state.apisecret, url = state.url;
+		var apikey = state.apikey, apisecret = state.apisecret, url = state.url, current = "Projects";
 		if(state.source === "qaservers") url = qatext[url];
 		else url = productiontext[url];
 		if (state.apikey !== "" && state.apisecret !== "") {
@@ -23,7 +23,8 @@ function Start() {
 				state: {
 					url,
 					apikey,
-					apisecret
+					apisecret,
+					current
 				},
 			});
 		}

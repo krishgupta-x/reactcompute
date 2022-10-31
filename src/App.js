@@ -1,13 +1,9 @@
 // Import dependencies
 import React, { useRef, useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import * as cocossd from "@tensorflow-models/coco-ssd";
-import * as tf from "@tensorflow/tfjs";
 import * as qs from 'qs';
-import Webcam from "react-webcam";
 import axios from "axios";
 import "./App.css";
-import { drawRect, drawRect3 } from "./utilities";
 import "onsenui/css/onsen-css-components.css";
 import { Toolbar, BackButton, List } from "react-onsenui";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,7 +14,6 @@ import {
   faCheckCircle,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
-import { irfft } from "@tensorflow/tfjs";
 
 function App() {
     const params = useLocation();
@@ -29,7 +24,7 @@ function App() {
     const [devices, setDevices] = React.useState([]);
 
     const [state, setState] = useState({
-        current: "Projects",
+        current: "",
         token: "",
         clickIndex: -1,
         project: "",
@@ -40,6 +35,7 @@ function App() {
         experimentItems: "",
         run: "",
         runItems: "",
+        //runIndex: "",
         url: "",
         apikey: "",
         apisecret: "",
@@ -63,16 +59,35 @@ function App() {
     ]);
 
    async function readyCloud(){
-        if (params.state === null) navigate("/");
+        if(params.state === null) navigate("/");
+
         state.url = "https://" + params.state.url;
         state.apikey = params.state.apikey
         state.apisecret = params.state.apisecret;
+        state.current = params.state.current;
 
         var token = await getToken();
         if(token == "error") state.current = "Error";
         else {
             state.token = token.trim();
             if(state.current == "Projects") projectData();
+            else {
+                state.current = params.state.current;
+                state.token = params.state.token;
+                state.clickIndex = params.state.clickIndex;
+                state.project = params.state.project;
+                state.projectItems = params.state.projectItems;
+                state.scene = params.state.scene;
+                state.sceneItems = params.state.sceneItems;
+                state.experiment = params.state.experiment;
+                state.experimentItems = params.state.experimentItems;
+                state.run = params.state.run;
+                state.runItems = params.state.runItems;
+                state.url = params.state.url;
+                state.apikey = params.state.apikey;
+                state.apisecret = params.state.apisecret;
+                runData()
+            }
         }
     }
 
@@ -121,9 +136,9 @@ function App() {
         state.experimentItems = items;
     }
 
-    async function runData(index, back){
+    async function runData(index){
         state.current = "Runs";
-        if(back == false) state.experiment = items[index].id;
+        state.experiment = items[index].id;
         var data = await getRuns(state.token);
         var newItems = [];
         if(data == "error") state.current = "Error";
@@ -140,16 +155,36 @@ function App() {
     async function predictData(index){
         state.current = "Runs";
         state.run = items[index].id;
-        var data = state.token;
+        var current = state.current;
+        var token = state.token;
+        var clickIndex = state.clickIndex;
+        var project = state.project;
+        var projectItems = state.projectItems;
+        var scene = state.scene;
+        var sceneItems = state.sceneItems;
+        var experiment = state.experiment;
+        var experimentItems = state.experimentItems;
         var run = state.run;
-        var exper = state.experiment;
+        var runItems = state.runItems;
         var url = state.url;
+        var apikey = state.apikey;
+        var apisecret = state.apisecret;
         navigate("/detect/run", {
             state: {
-                url,
-                data,
+                current,
+                token,
+                clickIndex,
+                project,
+                projectItems,
+                scene,
+                sceneItems,
+                experiment,
+                experimentItems,
                 run,
-                exper,
+                runItems,
+                url,
+                apikey,
+                apisecret
             },
         });
     }
@@ -220,8 +255,8 @@ function App() {
     const handleClick = (index) => {
         if(state.current == "Projects") sceneData(index, false);
         else if(state.current == "Scenes") experisData(index, false);
-        else if(state.current == "Experiments") runData(index, false);
-        else if(state.current == "Runs") predictData(index, false);
+        else if(state.current == "Experiments") runData(index);
+        else if(state.current == "Runs") predictData(index);
     };
 
     const handleBack = () => {
@@ -248,9 +283,16 @@ function App() {
                 <div className="main-container">
                     <div className="title-border">
                         <div className="title-container">
-                            <button onClick={() => handleBack()}>
-                                <FontAwesomeIcon icon={faChevronLeft}/>
-                            </button>
+                            {state.current !== "Projects" &&
+                                <button disabled={state.current === "Projects"} onClick={() => handleBack()}>
+                                    <FontAwesomeIcon icon={faChevronLeft}/>
+                                </button>
+                            }
+                            {state.current === "Projects" &&
+                                <button disabled={state.current === "Projects"} onClick={() => handleBack()}>
+                                </button>
+                            }
+
                             <div className="title">{state.current}</div>
                         </div>
                     </div>

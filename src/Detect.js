@@ -9,33 +9,72 @@ import "./App.css";
 import { drawRect, drawRect3 } from "./utilities";
 import 'onsenui/css/onsen-css-components.css';
 import { Toolbar, BackButton } from 'react-onsenui';
+import { faC } from "@fortawesome/free-solid-svg-icons";
+
+function getWindowDimensions() {
+    const { innerWidth: width, innerHeight: height } = window;
+    return {
+      width,
+      height
+    };
+  }
+
+function useWindowDimensions() {
+    const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+
+    useEffect(() => {
+        function handleResize() {
+        setWindowDimensions(getWindowDimensions());
+        }
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return windowDimensions;
+}
 
 function App() {
+    const { height, width } = useWindowDimensions();
+    //const [width, height] = useWindowSize();
+    //const [widthT, heightT] = throttled({ fps: 60 });
     const webcamRef = useRef(null);
     const canvasRef = useRef(null);
     const detectFlag = useRef(true);
     const boxes = useRef(null);
-    const prevBoxes = useRef(null);
-
     const params = useLocation();
     let navigate = useNavigate();
 
     const [flag, setFlag] = useState({
         backbuttonFlag: false,
     });
+    const [fps, setFPS] = useState("Loading Predictions");
 
-    var url = "";
-    var data = "";
-    var runind = "";
+    var current = "";
+    var token = "";
+    var clickIndex = "";
+    var project = "";
+    var projectItems = "";
+    var scene = "";
+    var sceneItems = "";
     var experiment = "";
+    var experimentItems = "";
+    var run = "";
+    var runItems = "";
+    var url = "";
+    var apikey = "";
+    var apisecret = "";
+
+    var t0 = 0, t1 = 0;
 
     //--- handle multiple cameras
     const [deviceId, setDeviceId] = React.useState({});
     const [devices, setDevices] = React.useState([]);
 
     const handleDevices = React.useCallback(
-        mediaDevices =>
-        setDevices(mediaDevices.filter(({ kind }) => kind === "videoinput")), [setDevices]
+        mediaDevices => {
+            setDevices(mediaDevices.filter(({ kind }) => kind === "videoinput"))
+        }, [setDevices]
     );
 
     React.useEffect(
@@ -46,44 +85,78 @@ function App() {
     //multi camera end ---
 
     function readyCall() {
-        console.log(params.state);
         if (params.state === null) {
             navigate("/detect");
-        } else {
+        }
+        else {
+            current = params.state.current;
+            token = params.state.token;
+            clickIndex = params.state.clickIndex;
+            project = params.state.project;
+            projectItems = params.state.projectItems;
+            scene = params.state.scene;
+            sceneItems = params.state.sceneItems;
+            experiment = params.state.experiment;
+            experimentItems = params.state.experimentItems;
+            run = params.state.run;
+            runItems = params.state.runItems;
             url = params.state.url;
-            data = params.state.data;
-            experiment = params.state.exper;
-            runind = params.state.run;
+            apikey = params.state.apikey;
+            apisecret = params.state.apisecret;
         }
     }
 
     function handleBack() {
         flag.backbuttonFlag = true;
-        navigate("/detect");
+        navigate("/detect", {
+            current,
+            token,
+            clickIndex,
+            project,
+            projectItems,
+            scene,
+            sceneItems,
+            experiment,
+            experimentItems,
+            run,
+            runItems,
+            url,
+            apikey,
+            apisecret
+        });
     }
 
-    const run = async() => {
+    const frameCount = async() => {
+        setInterval(() => {
+            setFPS(1000/(t1 - t0));
+        }, 1000);
+    };
+
+    const runFunc = async() => {
         readyCall();
+        frameCount();
         setInterval(() => {
             if (detectFlag.current === true) {
-                var t0 = performance.now();
                 detect();
-                var t1 = performance.now();
             }
         }, 100);
     };
 
     const drawBoxes = async() => {
         setInterval(() => {
+            t0 = performance.now();
             if (boxes.current !== null && !flag.backbuttonFlag) {
                 const videoWidth = webcamRef.current.video.videoWidth;
                 const videoHeight = webcamRef.current.video.videoHeight;
                 canvasRef.current.width = videoWidth;
                 canvasRef.current.height = videoHeight;
                 const ctx = canvasRef.current.getContext("2d");
-                drawRect3(ctx);
-                if (boxes.current.predictions.length > 0) drawRect(boxes.current, ctx);
+                if(boxes.current.predictions.length > 0){
+                    drawRect(boxes.current, ctx);
+                    drawRect(ctx);
+                }
             }
+            t1 = performance.now();
         }, 0);
     }
 
@@ -107,14 +180,13 @@ function App() {
             canvasRef.current.height = videoHeight;
 
             const api = await predictions(screen);
-            boxes.current = api;
-            console.log(boxes.current);
+            setFPS(0);
+            if(api != "error") boxes.current = api;
         }
         detectFlag.current = true;
     };
 
     async function predictions(imageSrc) {
-        console.log("predictions");
         const image = await fetch(imageSrc);
 		const imageBlob = await image.blob();
 		const file = new File([imageBlob], "testImage.png", { type: imageBlob.type });
@@ -122,79 +194,90 @@ function App() {
         let formData = new FormData();
         formData.set('image', file);
 
-		return axios.post(url + "/api/ar/data/experiments/" + experiment + "/run/" + runind + "/infer", formData, {
+		return axios.post(url + "/api/ar/data/experiments/" + experiment + "/run/" + run + "/infer", formData, {
 			headers: {
 				Accept: "application/json",
 				'Content-Type': 'multipart/form-data',
-				'Authorization': 'Bearer ' + data
+				'Authorization': 'Bearer ' + token
             }
-		}).then((response) => response.data);
+		}).then((response) => response.data).catch(error => console.log());
     }
 
     useEffect(() => { drawBoxes() }, []);
-    useEffect(() => { run() }, []);
+    useEffect(() => { runFunc() }, []);
+
+    const handleFlip = (e) => {
+        const value = e.target.value;
+        setDeviceId(value);
+	}
 
     return (
         <>
             <div style={{
                 display: "block",
-                width: 500,
+                width: "100%",
             }}>
                 <Toolbar modifier="material">
                     <div className="left">
                         <BackButton onClick={handleBack}> Back </BackButton>
+                        {' '}
+                        <button>{fps}</button>
+                    </div>
+
+                    <div className="right">
+                        <select
+                            name="url"
+                            onChange={handleFlip}
+                        >
+                            {devices.map((device, key) => (
+                                <option value={device.deviceId}>{device.label || `Device ${key + 1}`}{" "}</option>
+                            ))}
+                        </select>
                     </div>
                 </Toolbar>
             </div>
             <div className="App">
-                <header className="App-header">
+                <>
                     <Webcam
                         ref={webcamRef}
                         muted={true}
                         //video={{ facingMode: "user"}}
                         //video={{ facingMode: { exact: "environment" } }}
-                        videoConstraints={{
-				device: deviceId,
-				facingMode: { exact: "environment" },
-			}}
+                        videoConstraints={{ deviceId, height: 2000, width: 2000}}
                         screenshotFormat="image/jpeg"
                         style={{
-                        position: "absolute",
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        left: 0,
-                        right: 0,
-                        textAlign: "center",
-                        width: 640,
-                        height: 480,
-                        }}
+                            position: "fixed",
+                            width: "100%",
+                            height: "100%",
+                            left: "0%",
+                            objectFit: "cover",
+                            objectPosition: "center"
+                          }}
+                        //className="webcamCapture"
+                        /*
+                        style={{
+                            position: "absolute",
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                            left: 0,
+                            right: 0,
+                            //width: 640,
+                            //height: 800,
+                        }} */
                     />
+
                     <canvas
                         ref={canvasRef}
                         style={{
-                        position: "absolute",
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        left: 0,
-                        right: 0,
-                        textAlign: "center",
-                        width: 640,
-                        height: 480,
+                            position: "fixed",
+                            left: "0%",
+                            objectFit: "cover",
+                            objectPosition: "center",
+                            width: "100%",
+                            height: "100%",
                         }}
                     />
-                </header>
-                <div>
-                    {devices.map((device, key) => (
-                        <button
-                        class="button"
-                        type="button"
-                        key={device.deviceId}
-                        onClick={() => setDeviceId(device.deviceId)}
-                        >
-                            {device.label || `Device ${key + 1}`}{" "}
-                        </button>
-                    ))}
-                </div>
+                </>
             </div>
         </>
     );

@@ -65,6 +65,7 @@ body {
 }
 
 .app-background {
+    margin: auto;
     background-color: #bee3ff;
     display: flex;
     justify-content: center;

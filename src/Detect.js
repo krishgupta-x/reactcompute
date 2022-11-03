@@ -1,8 +1,6 @@
 // Import dependencies
 import React, { useRef, useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import * as cocossd from "@tensorflow-models/coco-ssd";
-import * as tf from "@tensorflow/tfjs";
 import Webcam from "react-webcam";
 import axios from "axios";
 import "./App.css";
@@ -45,25 +43,29 @@ function App() {
     const params = useLocation();
     let navigate = useNavigate();
 
+    var first = true;
+
     const [flag, setFlag] = useState({
         backbuttonFlag: false,
     });
     const [fps, setFPS] = useState("Loading Predictions");
 
-    var current = "";
-    var token = "";
-    var clickIndex = "";
-    var project = "";
-    var projectItems = "";
-    var scene = "";
-    var sceneItems = "";
-    var experiment = "";
-    var experimentItems = "";
-    var run = "";
-    var runItems = "";
-    var url = "";
-    var apikey = "";
-    var apisecret = "";
+    const [state, setState] = useState({
+        current: "",
+        token: "",
+        clickIndex: "",
+        project: "",
+        projectItems: "",
+        scene: "",
+        sceneItems: "",
+        experiment: "",
+        experimentItems: "",
+        run: "",
+        runItems: "",
+        url: "",
+        apikey: "",
+        apisecret: "",
+    });
 
     var t0 = 0, t1 = 0;
 
@@ -85,55 +87,73 @@ function App() {
     //multi camera end ---
 
     function readyCall() {
+        t0 = performance.now();
         if (params.state === null) {
             navigate("/detect");
         }
         else {
-            current = params.state.current;
-            token = params.state.token;
-            clickIndex = params.state.clickIndex;
-            project = params.state.project;
-            projectItems = params.state.projectItems;
-            scene = params.state.scene;
-            sceneItems = params.state.sceneItems;
-            experiment = params.state.experiment;
-            experimentItems = params.state.experimentItems;
-            run = params.state.run;
-            runItems = params.state.runItems;
-            url = params.state.url;
-            apikey = params.state.apikey;
-            apisecret = params.state.apisecret;
+            state.current = params.state.current;
+            state.token = params.state.token;
+            state.clickIndex = params.state.clickIndex;
+            state.project = params.state.project;
+            state.projectItems = params.state.projectItems;
+            state.scene = params.state.scene;
+            state.sceneItems = params.state.sceneItems;
+            state.experiment = params.state.experiment;
+            state.experimentItems = params.state.experimentItems;
+            state.run = params.state.run;
+            state.runItems = params.state.runItems;
+            state.url = params.state.url;
+            state.apikey = params.state.apikey;
+            state.apisecret = params.state.apisecret;
+            console.log(state);
+            runFunc();
         }
     }
 
     function handleBack() {
         flag.backbuttonFlag = true;
+        var current = state.current;
+        var token = state.token;
+        var clickIndex = state.clickIndex;
+        var project = state.project;
+        var projectItems = state.projectItems;
+        var scene = state.scene;
+        var sceneItems = state.sceneItems;
+        var experiment = state.experiment;
+        var experimentItems = state.experimentItems;
+        var run = state.run;
+        var runItems = state.runItems;
+        var url = state.url.substring(8);
+        var apikey = state.apikey;
+        var apisecret = state.apisecret;
         navigate("/detect", {
-            current,
-            token,
-            clickIndex,
-            project,
-            projectItems,
-            scene,
-            sceneItems,
-            experiment,
-            experimentItems,
-            run,
-            runItems,
-            url,
-            apikey,
-            apisecret
+            state: {
+                current,
+                token,
+                clickIndex,
+                project,
+                projectItems,
+                scene,
+                sceneItems,
+                experiment,
+                experimentItems,
+                run,
+                runItems,
+                url,
+                apikey,
+                apisecret,
+            },
         });
     }
 
     const frameCount = async() => {
         setInterval(() => {
-            setFPS(1000/(t1 - t0));
+            //setFPS(1000/(t1 - t0));
         }, 1000);
     };
 
     const runFunc = async() => {
-        readyCall();
         frameCount();
         setInterval(() => {
             if (detectFlag.current === true) {
@@ -144,7 +164,7 @@ function App() {
 
     const drawBoxes = async() => {
         setInterval(() => {
-            t0 = performance.now();
+            //t0 = performance.now();
             if (boxes.current !== null && !flag.backbuttonFlag) {
                 const videoWidth = webcamRef.current.video.videoWidth;
                 const videoHeight = webcamRef.current.video.videoHeight;
@@ -156,7 +176,7 @@ function App() {
                     drawRect(ctx);
                 }
             }
-            t1 = performance.now();
+            //t1 = performance.now();
         }, 0);
     }
 
@@ -180,13 +200,18 @@ function App() {
             canvasRef.current.height = videoHeight;
 
             const api = await predictions(screen);
-            setFPS(0);
+            if(first){
+                t1 = performance.now();
+                setFPS("Load Time: " + (t1 - t0) + " milliseconds");
+                first = false;
+            }
             if(api != "error") boxes.current = api;
         }
         detectFlag.current = true;
     };
 
     async function predictions(imageSrc) {
+        console.log("preds");
         const image = await fetch(imageSrc);
 		const imageBlob = await image.blob();
 		const file = new File([imageBlob], "testImage.png", { type: imageBlob.type });
@@ -194,17 +219,17 @@ function App() {
         let formData = new FormData();
         formData.set('image', file);
 
-		return axios.post(url + "/api/ar/data/experiments/" + experiment + "/run/" + run + "/infer", formData, {
+		return axios.post(params.state.url + "/api/ar/data/experiments/" + state.experiment + "/run/" + state.run + "/infer", formData, {
 			headers: {
 				Accept: "application/json",
 				'Content-Type': 'multipart/form-data',
-				'Authorization': 'Bearer ' + token
+				'Authorization': 'Bearer ' + state.token
             }
 		}).then((response) => response.data).catch(error => console.log());
     }
 
     useEffect(() => { drawBoxes() }, []);
-    useEffect(() => { runFunc() }, []);
+    useEffect(() => { readyCall() }, []);
 
     const handleFlip = (e) => {
         const value = e.target.value;
@@ -243,7 +268,7 @@ function App() {
                         muted={true}
                         //video={{ facingMode: "user"}}
                         //video={{ facingMode: { exact: "environment" } }}
-                        videoConstraints={{ deviceId, height: 2000, width: 2000}}
+                        videoConstraints={{ deviceId, height: 2000, width: 2000, facingMode: { exact: "environment" } }}
                         screenshotFormat="image/jpeg"
                         style={{
                             position: "fixed",

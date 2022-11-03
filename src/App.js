@@ -60,7 +60,7 @@ function App() {
 
    async function readyCloud(){
         if(params.state === null) navigate("/");
-
+        console.log(params.state.url);
         state.url = "https://" + params.state.url;
         state.apikey = params.state.apikey
         state.apisecret = params.state.apisecret;
@@ -83,10 +83,13 @@ function App() {
                 state.experimentItems = params.state.experimentItems;
                 state.run = params.state.run;
                 state.runItems = params.state.runItems;
-                state.url = params.state.url;
+                state.url = "https://" + params.state.url;
                 state.apikey = params.state.apikey;
                 state.apisecret = params.state.apisecret;
-                runData()
+                //update(state.runItems);
+                //runData(state.experiment);
+                //console.log(state.url);
+                projectData();
             }
         }
     }
@@ -94,6 +97,7 @@ function App() {
     async function projectData(){
         state.current = "Projects";
         var data = await getProjects(state.token);
+        console.log(data);
         var newItems = [];
         if(data == "error") state.current = "Error";
         else {
@@ -109,6 +113,7 @@ function App() {
         state.current = "Scenes";
         if(back == false) state.project = items[index].id;
         var data = await getScenes(state.token);
+        console.log(data);
         var newItems = [];
         if(data == "error") state.current = "Error";
         else {
@@ -124,6 +129,7 @@ function App() {
         state.current = "Experiments";
         if(back == false) state.scene = items[index].id;
         var data = await getExperiments(state.token);
+        console.log(data);
         var newItems = [];
         if(data == "error") state.current = "Error";
         else {
@@ -137,9 +143,14 @@ function App() {
     }
 
     async function runData(index){
+        console.log("run");
         state.current = "Runs";
-        state.experiment = items[index].id;
+        console.log(items);
+        if(state.runItems == "") state.experiment = items[index].id;
+        else state.experiment = state.runItems[index].id;
+        console.log(state.experiment);
         var data = await getRuns(state.token);
+        console.log(data);
         var newItems = [];
         if(data == "error") state.current = "Error";
         else {
@@ -209,6 +220,7 @@ function App() {
     }
 
     async function getProjects(token) {
+        console.log(state.url);
 		return axios.get(state.url + "/api/ar/data/projects/", {
 			headers: {
 				Accept: "application/json",

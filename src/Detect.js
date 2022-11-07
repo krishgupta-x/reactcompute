@@ -87,11 +87,11 @@ function App() {
     //multi camera end ---
 
     function readyCall() {
-        t0 = performance.now();
         if (params.state === null) {
             navigate("/detect");
         }
         else {
+            t0 = performance.now();
             state.current = params.state.current;
             state.token = params.state.token;
             state.clickIndex = params.state.clickIndex;
@@ -147,14 +147,7 @@ function App() {
         });
     }
 
-    const frameCount = async() => {
-        setInterval(() => {
-            //setFPS(1000/(t1 - t0));
-        }, 1000);
-    };
-
     const runFunc = async() => {
-        frameCount();
         setInterval(() => {
             if (detectFlag.current === true) {
                 detect();
@@ -164,7 +157,6 @@ function App() {
 
     const drawBoxes = async() => {
         setInterval(() => {
-            //t0 = performance.now();
             if (boxes.current !== null && !flag.backbuttonFlag) {
                 const videoWidth = webcamRef.current.video.videoWidth;
                 const videoHeight = webcamRef.current.video.videoHeight;
@@ -176,7 +168,6 @@ function App() {
                     drawRect(ctx);
                 }
             }
-            //t1 = performance.now();
         }, 0);
     }
 

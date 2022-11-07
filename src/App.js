@@ -14,6 +14,7 @@ import {
   faCheckCircle,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
+import { prod } from "@tensorflow/tfjs";
 
 function App() {
     const params = useLocation();
@@ -63,6 +64,10 @@ function App() {
 
     ]);
 
+    const [prodsExper, setProdsExperi] =  useState([
+
+    ]);
+
    async function readyCloud(){
         if(params.state === null) navigate("/");
         console.log(params.state.url);
@@ -103,7 +108,7 @@ function App() {
         state.current = "Projects";
         var data = await getProjects(state.token);
         console.log(data);
-        var newItems = [];
+        var newItems = [], newprods = [];
         if(data == "error") state.current = "Error";
         else {
             for(var i = 0; i < data.length; i++) {
@@ -119,15 +124,18 @@ function App() {
         if(back == false) state.project = items[index].id;
         var data = await getScenes(state.token);
         console.log(data);
-        var newItems = [], prods = [];
+        var newItems = [], newprods = [], newexperi = [];
         if(data == "error") state.current = "Error";
         else {
             for(var i = 0; i < data.length; i++) {
                 newItems.push(data[i]);
-                prods.push(data[i].productionModel.runId);
+                newprods.push(data[i].productionModel.runId);
+                newexperi.push(data[i].productionModel.experimentId);
             }
             update(newItems);
-            updateprods(prods);
+            updateprods(newprods);
+            updateprodexperi(newexperi);
+            console.log(newprods);
         }
         state.sceneItems = items;
     }
@@ -137,16 +145,23 @@ function App() {
         if(back == false) state.scene = items[index].id;
         var data = await getExperiments(state.token);
         console.log(data);
-        var newItems = [];
+        var item = prods[index];
+        var experi = prodsExper[index];
+        var newItems = [], newprods = [], newexperi = [];
         if(data == "error") state.current = "Error";
         else {
             for(var i = 0; i < data.length; i++) {
                 if(data[i].name == null) data[i].name = data[i].id;
                 newItems.push(data[i]);
             }
+            newprods.push(item);
+            newexperi.push(experi);
             update(newItems);
+            updateprods(newprods);
+            updateprodexperi(newexperi);
         }
         state.experimentItems = items;
+        console.log(index);
     }
 
     async function runData(index){
@@ -170,9 +185,14 @@ function App() {
         state.runItems = items;
     }
 
-    async function predictData(index){
+    async function predictData(index, bool){
         state.current = "Runs";
-        state.run = items[index].id;
+        if(bool){
+            state.run = prods;
+            state.experiment = prodsExper;
+        }
+        else state.run = items[index].id;
+        console.log(state.run);
         var current = state.current;
         var token = state.token;
         var clickIndex = state.clickIndex;
@@ -275,12 +295,20 @@ function App() {
         setProds(newItems);
     }
 
+    const updateprodexperi = (newItems) => {
+        setProdsExperi(newItems);
+    }
+
     const handleClick = (index) => {
         if(state.current == "Projects") sceneData(index, false);
         else if(state.current == "Scenes") experisData(index, false);
         else if(state.current == "Experiments") runData(index);
-        else if(state.current == "Runs") predictData(index);
+        else if(state.current == "Runs") predictData(index, false);
     };
+
+    const handleRun = () => {
+        predictData(0, true);
+    }
 
     const handleBack = () => {
         if(state.current == "Scenes") projectData(state.prevIndex, true);
@@ -320,6 +348,14 @@ function App() {
                         </div>
                     </div>
                     <div className="item-list">
+                        {(state.current === "Experiments" && typeof prods[0] === 'string') ? <div className="item-container" onClick={() => handleRun()}>
+                            <div className="item-name">{prods}</div>
+                            <div className="quantity">
+                                <button>
+                                    <FontAwesomeIcon icon={faChevronRight}/>
+                                </button>
+                            </div>
+                        </div> : null}
                         {items.map((item, index) => (
                             <div className="item-container" onClick={() => handleClick(index)}>
                                 <div className="item-name">{item.name}</div>

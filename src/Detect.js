@@ -193,7 +193,7 @@ function App() {
             const api = await predictions(screen);
             if(first){
                 t1 = performance.now();
-                setFPS("Load Time: " +(t1 - t0) + " milliseconds");
+                setFPS("Load Time: " +(t1 - t0).toFixed(3) + " milliseconds");
                 first = false;
             }
             if(api != "error") boxes.current = api;

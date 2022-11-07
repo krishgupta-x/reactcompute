@@ -39,6 +39,7 @@ function App() {
         url: "",
         apikey: "",
         apisecret: "",
+        productionModel: "",
     });
 
     const handleDevices = React.useCallback(
@@ -55,6 +56,10 @@ function App() {
     //multi camera end ---
 
     const [items, setItems] = useState([
+
+    ]);
+
+    const [prods, setProds] = useState([
 
     ]);
 
@@ -114,13 +119,15 @@ function App() {
         if(back == false) state.project = items[index].id;
         var data = await getScenes(state.token);
         console.log(data);
-        var newItems = [];
+        var newItems = [], prods = [];
         if(data == "error") state.current = "Error";
         else {
             for(var i = 0; i < data.length; i++) {
                 newItems.push(data[i]);
+                prods.push(data[i].productionModel.runId);
             }
             update(newItems);
+            updateprods(prods);
         }
         state.sceneItems = items;
     }
@@ -262,6 +269,10 @@ function App() {
 
     const update = (newItems) => {
         setItems(newItems);
+    }
+
+    const updateprods = (newItems) => {
+        setProds(newItems);
     }
 
     const handleClick = (index) => {

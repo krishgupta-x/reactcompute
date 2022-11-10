@@ -239,17 +239,6 @@ function App() {
                         {' '}
                         <button>{fps}</button>
                     </div>
-
-                    <div className="right">
-                        <select
-                            name="url"
-                            onChange={handleFlip}
-                        >
-                            {devices.map((device, key) => (
-                                <option value={device.deviceId}>{device.label || `Device ${key + 1}`}{" "}</option>
-                            ))}
-                        </select>
-                    </div>
                 </Toolbar>
             </div>
             <div className="App">

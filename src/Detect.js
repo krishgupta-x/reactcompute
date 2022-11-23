@@ -209,7 +209,7 @@ function App() {
 
         let formData = new FormData();
         formData.set('image', file);
-
+        console.log(state.url + "/api/ar/data/experiments/" + state.experiment + "/run/" + state.run + "/infer");
 		return axios.post(params.state.url + "/api/ar/data/experiments/" + state.experiment + "/run/" + state.run + "/infer", formData, {
 			headers: {
 				Accept: "application/json",

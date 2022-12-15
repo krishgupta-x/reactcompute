@@ -5,11 +5,11 @@ import FormInput from "./components/FormInput";
 
 function Start() {
 	const [state, setState] = useState({
-		apikey: "",
-		apisecret: "",
-		url: "demo",
+		apikey: "63d6501b-73f6-4407-a962-8bc71069e365",
+		apisecret: "ff5c2713-37d9-42fa-8590-fd5cea8c2038",
+		url: "alto",
 		error: "",
-		source: "qaservers"
+		source: "prodservers"
 	});
 
 	let navigate = useNavigate();
@@ -94,7 +94,7 @@ function Start() {
 	};
 
 	const productiontext = {
-		"alto": "app.alto-platform.ai",
+		"alto": "app.ai.carear.app",
 		"ca": "app.ca.alto-platform.ai",
 		"eu": "app.eu.alto-platform.ai",
 	};

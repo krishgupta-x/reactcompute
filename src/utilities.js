@@ -1,4 +1,5 @@
 export const drawRect = (data, ctx) => {
+    // console.log(data.image.width)
     var imgwidth = data.image.width;
     var imgheight = data.image.height;
     var predlength = data.predictions.length;
@@ -73,4 +74,28 @@ export const drawRect2 = (detections, ctx) => {
         ctx.rect(x, y, width, height);
         ctx.stroke();
     });
+}
+
+
+export const drawText = (text, ctx) => {
+    // Set styling
+    const color = Math.floor(Math.random() * 16777215).toString(16);
+    var x = 22,
+        y = 42,
+        width = ctx.width - x * 2,
+        height = ctx.height - y * 2;
+    ctx.strokeStyle = '#84c8fb';
+    ctx.lineWidth = 3.0;
+    ctx.font = '24px Source Sans Pro';
+
+    // Draw rectangles and text
+    ctx.beginPath();
+    ctx.fillStyle = '#84c8fb';
+    ctx.fillRect(x - 2, y - 20, ctx.measureText(text).width + 8, 20);
+
+    //if(y < )
+    ctx.fillStyle = '#000000';
+    ctx.fillText(text, x + 2, y - 3);
+    ctx.rect(x, y, width, height);
+    ctx.stroke();
 }

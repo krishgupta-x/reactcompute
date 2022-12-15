@@ -276,8 +276,8 @@
     position: absolute;
     width: 100%;
     z-index: 1;
-    left: -4px;
-    top: -4px;
+    left: -5px;
+    top: -5px;
     width: 5em;
     line-height: 5em;
     font-size: 0.225em;
@@ -1147,7 +1147,7 @@
 }
 
 .c100:hover:after {
-    top: 0.04em;
+    top: 0.043em;
     left: 0.04em;
     width: 0.92em;
     height: 0.92em;

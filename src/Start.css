@@ -12,14 +12,15 @@ form {
     background-color: white;
     padding: 0px 60px;
     border-radius: 10px;
+    /*
     border-bottom: 2px solid #000000;
     border-left: 2px solid #000000;
     border-right: 2px solid #000000;
-    border-top: 2px solid #000000;
+    border-top: 2px solid #000000; */
 }
 
 h1 {
-    color: rgb(77, 1, 77);
+    color: #45469C;
     text-align: center;
 }
 
@@ -28,7 +29,7 @@ h1 {
     height: 50px;
     padding: 10px;
     border: none;
-    background-color: rebeccapurple;
+    background-color: #45469C;
     color: white;
     border-radius: 5px;
     font-weight: bold;

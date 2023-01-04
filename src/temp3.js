@@ -17,7 +17,6 @@ import {
   faPlus,
   faHelicopterSymbol,
   faLeftLong,
-  faFolderOpen,
 } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
 import Uploady from "@rpldy/uploady";
@@ -82,11 +81,10 @@ const PreviewContainer = styled.div`
     align-items: center;
 
     img {
-        width: 250px;
-        background-color: black;
-        border: 4px;
-        border-style: solid;
-        border-color: gray;
+        margin: 5px;
+        max-width: 200px;
+        height: auto;
+        margin-right: 10px;
     }
 `;
 
@@ -144,12 +142,12 @@ function App() {
 
     useEffect(() => {
         setPercent(0);
-        setProjectArr(JSON.parse(window.localStorage.getItem("projectArr")));
+        setProjectArr(JSON.parse(window.sessionStorage.getItem("projectArr")));
     }, []);
 
     useEffect(() => {
         console.log(projectArr);
-        window.localStorage.setItem("projectArr", JSON.stringify(projectArr));
+        window.sessionStorage.setItem("projectArr", JSON.stringify(projectArr));
     }, [projectArr]);
 
     async function readyCloud(){
@@ -549,6 +547,13 @@ function App() {
                                 (state.current === "Labels" ? "Detection" : state.current)}
                             </div>
                         </div>
+                        {isLoading &&
+                            <div className="spinner-container">
+                                <div className="loading-spinner">
+                                </div>
+                                <div className="percent">{((percent / total) * 100).toFixed(2) + "%"}</div>
+                            </div>
+                        }
                         {state.current === "Labels" &&
                             <>
                                 <div className="select-container">
@@ -592,12 +597,13 @@ function App() {
                                     }}
                                 >
                                     <MyComponent></MyComponent>
-                                    <div>
+                                    <div className="">
                                         <UploadButton>
                                             <div className="default">
                                                 <div className="frame">
                                                     <div className="upload">
                                                         <img className="vector" src="Vector.png"></img>
+                                                        <div className="vector-box"></div>
                                                     </div>
                                                     <div className="text1">Image Mask</div>
                                                     <div className="text2" style={{marginTop: "2px"}}>upload a file from your device</div>
@@ -606,9 +612,8 @@ function App() {
                                                 <div className="rect"></div>
                                             </div>
                                         </UploadButton>
-                                        <div className="gap2-container"></div>
-                                        <PreviewContainer >
-                                            <UploadPreview/>
+                                        <PreviewContainer>
+                                        <UploadPreview />
                                         </PreviewContainer>
                                     </div>
                                 </Uploady>
@@ -622,80 +627,70 @@ function App() {
                         }
                         {state.current === "Models" &&
                             <>
-                                {isLoading ? (
-                                    <div className="spinner-container">
-                                        <div className="loading-spinner">
-                                        </div>
-                                        <div className="percent">{((percent / total) * 100).toFixed(2) + "%"}</div>
-                                    </div>
-                                    ) : (
-                                    <>
-                                        {projectArr.map((item, index) => (
-                                            <div key={index}>
-                                                <div style={{
-                                                    border: isActive[index] === 1 ? '3px solid #00A9FF' : '',
-                                                    boxShadow: isActive[index] === 1 ? '0px 0px 0px 4px rgba(0, 169, 255, 0.2)': '',
-                                                }}
-                                                    className="item-container" onClick={() => handleClick(index)}>
-                                                    <div className="name-container">
-                                                        <div className="name">
-                                                            {item.name}{" - "}{item.scenes.name}
-                                                        </div>
-                                                        <div className="description">
-                                                            <div className="label-container">
-                                                                {item.scenes.labels.length > 1 ?
-                                                                    <div className="labels">{item.scenes.labels.length} labels</div>
-                                                                    :
-                                                                    <div className="labels">{item.scenes.labels.length} label</div>
-                                                                }
-                                                            </div>
-                                                            <div className="spacer-container">
-                                                                <div className="spacer">|</div>
-                                                            </div>
-                                                            <div className="created-container">
-                                                                <div className="created">Created {item.scenes.completed}</div>
-                                                            </div>
-                                                        </div>
+                                {projectArr.map((item, index) => (
+                                    <div key={index}>
+                                        <div style={{
+                                            border: isActive[index] === 1 ? '3px solid #00A9FF' : '',
+                                            boxShadow: isActive[index] === 1 ? '0px 0px 0px 4px rgba(0, 169, 255, 0.2)': '',
+                                        }}
+                                            className="item-container" onClick={() => handleClick(index)}>
+                                            <div className="name-container">
+                                                <div className="name">
+                                                    {item.scenes.name + " - " + item.name}
+                                                </div>
+                                                <div className="description">
+                                                    <div className="label-container">
+                                                        {item.scenes.labels.length > 1 ?
+                                                            <div className="labels">{item.scenes.labels.length} labels</div>
+                                                            :
+                                                            <div className="labels">{item.scenes.labels.length} label</div>
+                                                        }
                                                     </div>
-                                                    <div className="graph-container">
-                                                        <div className="graph">
-                                                            {(item.scenes.map * 100) >= 70 &&
-                                                                <div className={"c100 p" + ((item.scenes.map * 100).toFixed(0)) + " small green"}>
-                                                                    <span>{(item.scenes.map * 100).toFixed(0)}%</span>
-                                                                    <div className="slice">
-                                                                        <div className="bar"></div>
-                                                                        <div className="fill"></div>
-                                                                    </div>
-                                                                </div>
-                                                            }
-                                                            {(item.scenes.map * 100) < 70 && (item.scenes.map * 100) >= 40 &&
-                                                                <div className={"c100 p" + ((item.scenes.map * 100).toFixed(0)) + " small orange"}>
-                                                                    <span>{(item.scenes.map * 100).toFixed(0)}%</span>
-                                                                    <div className="slice">
-                                                                        <div className="bar"></div>
-                                                                        <div className="fill"></div>
-                                                                    </div>
-                                                                </div>
-                                                            }
-                                                            {(item.scenes.map * 100) < 40 &&
-                                                                <div className={"c100 p" + ((item.scenes.map * 100).toFixed(0)) + " small red"}>
-                                                                    <span>{(item.scenes.map * 100).toFixed(0)}%</span>
-                                                                    <div className="slice">
-                                                                        <div className="bar"></div>
-                                                                        <div className="fill"></div>
-                                                                    </div>
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                        <div className="recog">Recognition Score</div>
+                                                    <div className="spacer-container">
+                                                        <div className="spacer">|</div>
+                                                    </div>
+                                                    <div className="created-container">
+                                                        <div className="created">Created {item.scenes.completed}</div>
                                                     </div>
                                                 </div>
-                                                <div className="gap2-container"></div>
-                                                <div className="gap2-container"></div>
                                             </div>
-                                        ))}
-                                    </>
-                                )}
+                                            <div className="graph-container">
+                                                <div className="graph">
+                                                    {(item.scenes.map * 100) >= 70 &&
+                                                        <div className={"c100 p" + ((item.scenes.map * 100).toFixed(0)) + " small green"}>
+                                                            <span>{(item.scenes.map * 100).toFixed(0)}%</span>
+                                                            <div className="slice">
+                                                                <div className="bar"></div>
+                                                                <div className="fill"></div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    {(item.scenes.map * 100) < 70 && (item.scenes.map * 100) >= 40 &&
+                                                        <div className={"c100 p" + ((item.scenes.map * 100).toFixed(0)) + " small orange"}>
+                                                            <span>{(item.scenes.map * 100).toFixed(0)}%</span>
+                                                            <div className="slice">
+                                                                <div className="bar"></div>
+                                                                <div className="fill"></div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    {(item.scenes.map * 100) < 40 &&
+                                                        <div className={"c100 p" + ((item.scenes.map * 100).toFixed(0)) + " small red"}>
+                                                            <span>{(item.scenes.map * 100).toFixed(0)}%</span>
+                                                            <div className="slice">
+                                                                <div className="bar"></div>
+                                                                <div className="fill"></div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div className="recog">Recognition Score</div>
+                                            </div>
+                                        </div>
+                                        <div className="gap2-container"></div>
+                                        <div className="gap2-container"></div>
+                                    </div>
+                                ))}
                                 <div className="selectbutton-container" style={{marginBottom: "30px"}}>
                                     {isActive.filter(v => v === 1).length == 0 ?
                                         <button className="buttongray" type="button">Select</button> :

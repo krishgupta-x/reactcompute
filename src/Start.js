@@ -100,7 +100,7 @@ function Start() {
 	};
 
 	return (
-		<div className="app">
+		<div className="App">
 			<form onSubmit={handleSubmit}>
 				<h1>CareAR Demo</h1>
 				<label>
@@ -126,12 +126,12 @@ function Start() {
 						onChange={handleURL}
 					>
 						{state.source === "qaservers" ? (
-							Object.keys(qatext).map(typeId => (
-								<option value={typeId}>{qatext[typeId]}</option>
+							Object.keys(qatext).map((typeId, index) => (
+								<option key={index} value={typeId}>{qatext[typeId]}</option>
 							)))
 							:
-							(Object.keys(productiontext).map(typeId => (
-								<option value={typeId}>{productiontext[typeId]}</option>
+							(Object.keys(productiontext).map((typeId, index) => (
+								<option key={index} value={typeId}>{productiontext[typeId]}</option>
 							)))
 						}
 					</select>
@@ -148,7 +148,7 @@ function Start() {
 				<p style= {{
 					color: "red",
 				}}>{state.error}</p>
-				<button class="button" type="button" onClick={handleContinue}>Continue</button>
+				<button className="button" type="button" onClick={handleContinue}>Continue</button>
 			</form>
 		</div>
 

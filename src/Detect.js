@@ -214,7 +214,7 @@ function App() {
             canvasRef.current.width = videoWidth;
             canvasRef.current.height = videoHeight;
             const ctx = canvasRef.current.getContext("2d");
-            drawRect3(ctx);
+            //drawRect3(ctx);
 
             if(boxes.current && !flag && !open) {
                 var newboxes = {
@@ -312,7 +312,7 @@ function App() {
             }}>
                 <Toolbar modifier="material" style={{}}>
                     <div className="left">
-                        <BackButton onClick={downloadImage}> Model Selection </BackButton>
+                        <BackButton onClick={navigate("/")}> Model Selection </BackButton>
                     </div>
                     <div style={{ paddingRight: 20 }} className="right">Predictions: {counter}</div>
                 </Toolbar>

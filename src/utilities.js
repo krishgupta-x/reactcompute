@@ -7,14 +7,14 @@ export const drawRect = (data, ctx) => {
     for (let i = 0; i < predlength; i++) {
         //just transform to make it fit on an android phone
         //460 offset on x to work, y seems to be just 0.
-        var x = data.predictions[i].bbox[0] * 1540;
-        var y = data.predictions[i].bbox[1] * 1845;
+        var x = data.predictions[i].bbox[0] * 1080;
+        var y = data.predictions[i].bbox[1] * 1565;
 
-        const width = (data.predictions[i].bbox[2] * 1540) - x;
-        const height = (data.predictions[i].bbox[3] * 1845) - y;
+        const width = (data.predictions[i].bbox[2] * 1080) - x;
+        const height = (data.predictions[i].bbox[3] * 1565) - y;
 
-        x += 230;
-        y += 60;
+        x += 0;
+        y += 300;
 
         const text = data.predictions[i].name + ": " + data.predictions[i].confidence.toFixed(3);
 
@@ -25,6 +25,7 @@ export const drawRect = (data, ctx) => {
         ctx.beginPath();
         ctx.fillStyle = '#84c8fb';
         ctx.fillRect(x - 2, y - 20, ctx.measureText(text).width + 8, 20);
+
 
         ctx.fillStyle = '#000000';
         ctx.fillText(text, x + 2, y - 3);
@@ -41,13 +42,25 @@ export const drawRect3 = (ctx) => {
     // Draw rectangles and text
     ctx.beginPath();
     ctx.fillStyle = '#84c8fb';
-    ctx.rect(10, 10, 1900, 100);
-    //190 for ipad, 460 for phone
-    ctx.rect(460, 50, 50, 50);
-    ctx.rect(1389, 781, 50, 50);
-    ctx.rect(690, 385, 50, 50)
-    ctx.rect(500, 500, 400, 400);
+    ctx.rect(0, 298, 1079, 1267);
+    ctx.stroke();
+    //190 for ipad, 460 for phon
+
+    ctx.strokeStyle = '#5729c8';
+    ctx.rect(440, 50, 50, 50);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#f4c430';
+    ctx.stroke();
+
+    ctx.strokeStyle = "#49e675";
     ctx.rect(1010, 1645, 530, 200);
+
+    /*
+    ctx.rect(22, 2, 1875, 1005);
+    ctx.moveTo(22, 2);
+    ctx.lineTo(1920, 1020);
+    */
     ctx.stroke();
 }
 

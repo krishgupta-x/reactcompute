@@ -21,6 +21,7 @@
         "@testing-library/user-event": "^13.5.0",
         "axios": "^0.27.2",
         "date-fns": "^2.29.3",
+        "file-saver": "^2.0.5",
         "fs": "^0.0.1-security",
         "multiselect-react-dropdown": "^2.0.25",
         "onsenui": "^2.12.2",

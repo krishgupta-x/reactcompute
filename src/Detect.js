@@ -9,11 +9,12 @@ import { drawRect, drawRect3, drawText } from "./utilities";
 import 'onsenui/css/onsen-css-components.css';
 import { Toolbar, BackButton } from 'react-onsenui';
 
+import {saveAs} from 'file-saver';
+
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 import { BsInfoCircleFill } from 'react-icons/bs';
-import zIndex from "@mui/material/styles/zIndex";
 
 function getWindowDimensions() {
     const { innerWidth: width, innerHeight: height } = window;
@@ -36,6 +37,38 @@ function useWindowDimensions() {
     }, []);
 
     return windowDimensions;
+}
+
+//const isLandscape = size.height <= size.width;
+//const ratio = isLandscape ? size.width / size.height : size.height / size.width;
+
+
+function useWindowSize() {
+    const [windowSize, setWindowSize] = useState({
+      width: undefined,
+      height: undefined,
+    });
+
+    useEffect(() => {
+        // Handler to call on window resize
+        function handleResize() {
+          // Set window width/height to state
+          setWindowSize({
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
+        }
+
+        // Add event listener
+        window.addEventListener("resize", handleResize);
+
+        // Call handler right away so state gets updated with initial window size
+        handleResize();
+
+        // Remove event listener on cleanup
+        return () => window.removeEventListener("resize", handleResize);
+    }, []); // Empty array ensures that effect is only run on mount
+    return windowSize;
 }
 
 
@@ -68,9 +101,7 @@ function App() {
     const [interval1, setInterval1] = useState("");
     const [interval2, setInterval2] = useState("");
 
-    const [flag, setFlag] = useState({
-        backbuttonFlag: false,
-    });
+    const [flag, setFlag] = useState(false);
     const [fps, setFPS] = useState("Loading Predictions");
 
     const [counter, setCounter] = useState(0);
@@ -83,16 +114,6 @@ function App() {
     const [state, setState] = useState({
         current: "",
         token: "",
-        /*
-        clickIndex: "",
-        project: "",
-        projectItems: "",
-        scene: "",
-        sceneItems: "",
-        experiment: "",
-        experimentItems: "",
-        run: "",
-        runItems: "", */
         url: "",
         apikey: "",
         apisecret: "",
@@ -133,16 +154,6 @@ function App() {
             t0 = performance.now();
             state.current = params.state.current;
             state.token = params.state.token;
-            /*
-            state.clickIndex = params.state.clickIndex;
-            state.project = params.state.project;
-            state.projectItems = params.state.projectItems;
-            state.scene = params.state.scene;
-            state.sceneItems = params.state.sceneItems;
-            state.experiment = params.state.experiment;
-            state.experimentItems = params.state.experimentItems;
-            state.run = params.state.run;
-            state.runItems = params.state.runItems; */
             state.url = params.state.url;
             state.apikey = params.state.apikey;
             state.apisecret = params.state.apisecret;
@@ -159,7 +170,7 @@ function App() {
     }
 
     function handleBack() {
-        flag.backbuttonFlag = true;
+        setFlag(true);
         console.log(interval2);
         clearInterval(interval1);
         clearInterval(interval2);
@@ -187,24 +198,6 @@ function App() {
         }, 100));
     };
 
-    /*
-    async function getMask() {
-        const image = await fetch(imageSrc);
-		const imageBlob = await image.blob();
-		const file = new File([imageBlob], "testImage.png", { type: imageBlob.type });
-
-        let formData = new FormData();
-        formData.set('image', file);
-        console.log(state.url + "/api/ar/data/experiments/" + state.experi + "/run/" + state.run + "/infer");
-		return axios.post(state.url + "/api/ar/data/experiments/" + state.experi + "/run/" + state.run + "/infer", formData, {
-			headers: {
-				Accept: "application/json",
-				'Content-Type': 'multipart/form-data',
-				'Authorization': 'Bearer ' + state.token
-            }
-		}).then((response) => response.data).catch(error => console.log());
-    } */
-
     useEffect(() => {
         if (counter >= detectsNeeded) {
             setFPS("Detected " + state.labels.join(", "));
@@ -221,20 +214,9 @@ function App() {
             canvasRef.current.width = videoWidth;
             canvasRef.current.height = videoHeight;
             const ctx = canvasRef.current.getContext("2d");
-            /*
-            if(img !== undefined){
-                var canvas = ctx.canvas;
-                var hRatio = canvas.width / img.width;
-                var vRatio = canvas.height / img.height;
-                var ratio  = Math.min(hRatio, vRatio);
-                var centerShift_x = (canvas.width - img.width * ratio) / 2;
-                var centerShift_y = (canvas.height - img.height * ratio) / 2;
+            drawRect3(ctx);
 
-                ctx.drawImage(img, 0, 0, img.width, img.height,
-                    centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);
-            } */
-
-            if(boxes.current && !flag.backbuttonFlag && !open) {
+            if(boxes.current && !flag && !open) {
                 var newboxes = {
                     image: {
                         width: boxes.current.image.width,
@@ -242,7 +224,6 @@ function App() {
                     },
                     predictions: []
                 };
-
                 for(var i = 0; i < boxes.current.predictions.length; i++){
                     if(state.labels.includes(boxes.current.predictions[i].name)){
                         newboxes.predictions.push(boxes.current.predictions[i]);
@@ -277,14 +258,12 @@ function App() {
             canvasRef.current.height = videoHeight;
 
             const api = await predictions(screen);
-            //console.log(api);
             if(first){
                 t1 = performance.now();
                 setFPS("Load Time: " +(t1 - t0).toFixed(3) + " ms");
                 first = false;
             }
             if(api != "error") {
-                //console.log("not error");
                 boxes.current = api;
             }
             if(boxes.current !== undefined && boxes.current.predictions !== undefined && boxes.current.predictions.length !== 0){
@@ -298,10 +277,16 @@ function App() {
         detectFlag.current = true;
     };
 
+    async function downloadImage() {
+        const blob = await screenshot.blob();
+        saveAs(blob, 'image.jpg');
+    }
+
     async function predictions(imageSrc) {
         const image = await fetch(imageSrc);
 		const imageBlob = await image.blob();
 		const file = new File([imageBlob], "testImage.png", { type: imageBlob.type });
+        saveAs(file, 'image.jpg');
 
         let formData = new FormData();
         formData.set('image', file);
@@ -319,11 +304,6 @@ function App() {
     useEffect(() => { drawBoxes() }, []);
     useEffect(() => { readyCall() }, []);
 
-    const handleFlip = (e) => {
-        const value = e.target.value;
-        setDeviceId(value);
-	}
-
     return (
         <>
             <div style={{
@@ -332,7 +312,7 @@ function App() {
             }}>
                 <Toolbar modifier="material" style={{}}>
                     <div className="left">
-                        <BackButton onClick={handleBack}> Model Selection </BackButton>
+                        <BackButton onClick={downloadImage}> Model Selection </BackButton>
                     </div>
                     <div style={{ paddingRight: 20 }} className="right">Predictions: {counter}</div>
                 </Toolbar>
@@ -358,6 +338,8 @@ function App() {
                     <Webcam
                         ref={webcamRef}
                         muted={true}
+                        //height={size.height}
+                        //width={size.width}
                         //video={{ facingMode: "user"}}
                         //video={{ facingMode: { exact: "environment" } }}
                         videoConstraints={{ deviceId,
@@ -412,7 +394,7 @@ function App() {
                 {open === true ?
                     <div style={{zIndex: "2", position: "fixed", justifyContent: "center", textAlign: "center", verticalAlign: "middle"}}
                         className="ending">
-                        <div className="title">{"Detected " + state.labels.join(", ")}</div>
+                        <div className="title">{"Detected"}</div>
                     </div> : null}
             </div>
         </>

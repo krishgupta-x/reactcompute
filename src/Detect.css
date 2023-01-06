@@ -1,3 +1,13 @@
+.Detect {
+    height: 100vh;
+    width: 100vw;
+}
+
+.toolbar {
+    width: 100%;
+    height: 56px;
+}
+
 .overlay {
     position: absolute;
     bottom: 0;
@@ -15,8 +25,16 @@
 }
 
 .screen {
+    margin: 0px;
+    position: relative;
     height: 100%;
     width: 100%;
+}
+
+.predictions {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .container {
@@ -50,26 +68,22 @@
 
 .tooltip {
     position: relative;
-    display: inline-block;
-    border-bottom: 1px dotted black;
-    color: black;
+    z-index: 3;
 }
 
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: 120px;
-    height: 200px;
-    background-color: black;
-    color: black;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-
-    /* Position the tooltip */
-    position: relative;
-    left: 105%;
+.icon-container {
+    float: right;
+    bottom: 0px;
+    margin-right: 1%;
+    margin-top: 1%;
+    height: 40px;
+    width: 40px;
 }
 
-.tooltip:hover .tooltiptext {
-    visibility: visible;
+.icon {
+    height: 40px;
+    width: 40px;
+    color:rgb(23, 47, 77);
+    background-color: white;
+    border-radius: 50%;
 }

@@ -286,7 +286,7 @@ function App() {
         const image = await fetch(imageSrc);
 		const imageBlob = await image.blob();
 		const file = new File([imageBlob], "testImage.png", { type: imageBlob.type });
-        saveAs(file, 'image.jpg');
+        //saveAs(file, 'image.jpg');
 
         let formData = new FormData();
         formData.set('image', file);
@@ -312,7 +312,7 @@ function App() {
             }}>
                 <Toolbar modifier="material" style={{}}>
                     <div className="left">
-                        <BackButton onClick={navigate("/")}> Model Selection </BackButton>
+                        <BackButton onClick={handleBack}> Model Selection </BackButton>
                     </div>
                     <div style={{ paddingRight: 20 }} className="right">Predictions: {counter}</div>
                 </Toolbar>
@@ -343,9 +343,8 @@ function App() {
                         //video={{ facingMode: "user"}}
                         //video={{ facingMode: { exact: "environment" } }}
                         videoConstraints={{ deviceId,
-                            width: { min: 640, ideal: 1920, max: 1920 },
-                            height: { min: 400, ideal: 1080 },
-                            aspectRatio: 1.777777778,
+                            height: 960,
+                            width: 1280,
                             frameRate: { max: 30 },
                             facingMode: { exact: "environment" }
                         }}

@@ -1,20 +1,19 @@
 export const drawRect = (data, ctx) => {
     // console.log(data.image.width)
-    var imgwidth = data.image.width;
-    var imgheight = data.image.height;
+    var imgwidth = 960//data.image.width;
+    var imgheight = 1280//data.image.height;
     var predlength = data.predictions.length;
 
     for (let i = 0; i < predlength; i++) {
         //just transform to make it fit on an android phone
         //460 offset on x to work, y seems to be just 0.
-        var x = data.predictions[i].bbox[0] * 1080;
-        var y = data.predictions[i].bbox[1] * 1565;
+        var x = data.predictions[i].bbox[0] * imgwidth;
+        var y = data.predictions[i].bbox[1] * imgheight;
 
-        const width = (data.predictions[i].bbox[2] * 1080) - x;
-        const height = (data.predictions[i].bbox[3] * 1565) - y;
+        const width = (data.predictions[i].bbox[2] * imgwidth) - x;
+        const height = (data.predictions[i].bbox[3] * imgheight) - y;
 
         x += 0;
-        y += 300;
 
         const text = data.predictions[i].name + ": " + data.predictions[i].confidence.toFixed(3);
 

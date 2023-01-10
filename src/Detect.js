@@ -288,7 +288,7 @@ function App() {
                     </HtmlTooltip>
                 </div>
                 {state.image !== "" && <div class="container">
-                    <img src={state.image} style={{}}/>
+                    <img src={state.image} style={{height: "100%"}}/>
                 </div>}
                 {(counter < detectsNeeded) ? (
                     <Webcam

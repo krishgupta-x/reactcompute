@@ -69,11 +69,9 @@
 }
 
 .container img{
-    position: absolute;
+    position: fixed;
     z-index: 2;
-    border: 1px solid red;
-    height: 99%;
-    width: 99%;
+    /*border: 1px solid red; */
     object-fit: cover;
 }
 

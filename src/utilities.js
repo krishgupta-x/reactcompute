@@ -1,10 +1,11 @@
-export const drawRect = (data, ctx) => {
+export const drawRect = (data, ctx, width, height) => {
     // console.log(data.image.width)
-    var imgwidth = 960//data.image.width;
-    var imgheight = 1280//data.image.height;
+    //console.log(data.image.height);
+    var imgwidth = width//data.image.width;
+    var imgheight = height//data.image.height;
     var predlength = data.predictions.length;
 
-    for (let i = 0; i < predlength; i++) {
+    for (let i = 0; i < predlength; i++){
         //just transform to make it fit on an android phone
         //460 offset on x to work, y seems to be just 0.
         var x = data.predictions[i].bbox[0] * imgwidth;

@@ -498,44 +498,10 @@ function App() {
                 <Toolbar modifier="material">
                     <div className="left">
                         {state.current !== "Models" &&
-                            <>
-                                {Platform.OS === 'android' ?
-                                   <>
-                                        <BackButton onClick={() => handleBack()}></BackButton>
-                                        <span style={{
-                                            height: "100%",
-                                            verticalAlign: "5%",
-                                            lineHeight: "44px",
-                                            fontSize: "17px",
-                                            fontWeight: "500",
-                                            padding: "0px",
-                                            left: "-10px"
-                                        }} class="back-button__label">Model Selection</span>
-                                    </>
-                                    :
-                                    <BackButton onClick={() => handleBack()}>Model Selection</BackButton>
-                                }
-                            </>
+                            <BackButton onClick={() => handleBack()}>Model Selection</BackButton>
                         }
                         {state.current === "Models" &&
-                            <>
-                                {Platform.OS === 'android' ?
-                                    <>
-                                        <BackButton onClick={() => navigate("/")}></BackButton>
-                                        <span style={{
-                                            height: "100%",
-                                            verticalAlign: "5%",
-                                            lineHeight: "44px",
-                                            fontSize: "17px",
-                                            fontWeight: "500",
-                                            padding: "0px",
-                                            left: "-10px"
-                                        }} class="back-button__label">Login</span>
-                                    </>
-                                    :
-                                    <BackButton onClick={() => navigate("/")}>Login</BackButton>
-                                }
-                            </>
+                            <BackButton onClick={() => navigate("/")}>Login</BackButton>
                         }
                     </div>
                 </Toolbar>

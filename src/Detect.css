@@ -8,6 +8,28 @@
     height: 56px;
 }
 
+.detected {
+    width: auto;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    font-size: 30px;
+    color: black;
+}
+
+.ending {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 0;
+    justify-content: center;
+    padding: 10px 10px 10px 10px;
+    background-color: #F4F5F7;
+}
+
+
 .overlay {
     position: absolute;
     bottom: 0;
@@ -54,17 +76,6 @@
     width: 99%;
     object-fit: cover;
 }
-
-
-.ending {
-    box-sizing: border-box;
-    width: 100%;
-    margin-bottom: 0;
-    justify-content: center;
-    padding: 10px 10px 10px 10px;
-    background-color: #F4F5F7;
-}
-
 
 .tooltip {
     position: relative;

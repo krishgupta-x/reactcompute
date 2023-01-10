@@ -14,62 +14,8 @@ import {saveAs} from 'file-saver';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
-import { BsInfoCircleFill } from 'react-icons/bs';
-
-function getWindowDimensions() {
-    const { innerWidth: width, innerHeight: height } = window;
-    return {
-      width,
-      height
-    };
-  }
-
-function useWindowDimensions() {
-    const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
-
-    useEffect(() => {
-        function handleResize() {
-        setWindowDimensions(getWindowDimensions());
-        }
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    return windowDimensions;
-}
-
-//const isLandscape = size.height <= size.width;
-//const ratio = isLandscape ? size.width / size.height : size.height / size.width;
-
-
-function useWindowSize() {
-    const [windowSize, setWindowSize] = useState({
-      width: undefined,
-      height: undefined,
-    });
-
-    useEffect(() => {
-        // Handler to call on window resize
-        function handleResize() {
-          // Set window width/height to state
-          setWindowSize({
-            width: window.innerWidth,
-            height: window.innerHeight,
-          });
-        }
-
-        // Add event listener
-        window.addEventListener("resize", handleResize);
-
-        // Call handler right away so state gets updated with initial window size
-        handleResize();
-
-        // Remove event listener on cleanup
-        return () => window.removeEventListener("resize", handleResize);
-    }, []); // Empty array ensures that effect is only run on mount
-    return windowSize;
-}
+import { BsInfoCircleFill, BsArrowRepeat} from 'react-icons/bs';
+import { HiRefresh } from 'react-icons/hi';
 
 
 const HtmlTooltip = styled(({ className, ...props }) => (
@@ -86,9 +32,6 @@ const HtmlTooltip = styled(({ className, ...props }) => (
 }));
 
 function App() {
-    const { height, width } = useWindowDimensions();
-    //const [width, height] = useWindowSize();
-    //const [widthT, heightT] = throttled({ fps: 60 });
     const webcamRef = useRef(null);
     const canvasRef = useRef(null);
     const detectFlag = useRef(true);
@@ -126,9 +69,7 @@ function App() {
     });
 
     var t0 = 0, t1 = 0;
-
     var img;
-
     //--- handle multiple cameras
     const [deviceId, setDeviceId] = React.useState({});
     const [devices, setDevices] = React.useState([]);
@@ -171,6 +112,7 @@ function App() {
 
     function handleBack() {
         setFlag(true);
+        detectFlag.current = false;
         console.log(interval2);
         clearInterval(interval1);
         clearInterval(interval2);
@@ -188,6 +130,14 @@ function App() {
                 apisecret,
             },
         });
+    }
+
+    function handleRetry() {
+        setOpen(false);
+        setFPS("Loading Predictions");
+        first = true;
+        boxes.current = null;
+        setCounter(0);
     }
 
     const runFunc = async() => {
@@ -209,29 +159,32 @@ function App() {
 
     const drawBoxes = async() => {
         setInterval2(setInterval(() => {
-            const videoWidth = webcamRef.current.video.videoWidth;
-            const videoHeight = webcamRef.current.video.videoHeight;
-            canvasRef.current.width = videoWidth;
-            canvasRef.current.height = videoHeight;
-            const ctx = canvasRef.current.getContext("2d");
-            //drawRect3(ctx);
+            if(webcamRef !== null && webcamRef.current !== null){
+                const videoWidth = webcamRef.current.video.videoWidth;
+                const videoHeight = webcamRef.current.video.videoHeight;
+                canvasRef.current.width = videoWidth;
+                canvasRef.current.height = videoHeight;
+                const ctx = canvasRef.current.getContext("2d");
+                //drawRect3(ctx);
 
-            if(boxes.current && !flag && !open) {
-                var newboxes = {
-                    image: {
-                        width: boxes.current.image.width,
-                        height: boxes.current.image.height
-                    },
-                    predictions: []
-                };
-                for(var i = 0; i < boxes.current.predictions.length; i++){
-                    if(state.labels.includes(boxes.current.predictions[i].name)){
-                        newboxes.predictions.push(boxes.current.predictions[i]);
+                if(boxes.current && !flag && !open) {
+                    var newboxes = {
+                        image: {
+                            width: boxes.current.image.width,
+                            height: boxes.current.image.height
+                        },
+                        predictions: []
+                    };
+                    for(var i = 0; i < boxes.current.predictions.length; i++){
+                        if(state.labels.includes(boxes.current.predictions[i].name)){
+                            newboxes.predictions.push(boxes.current.predictions[i]);
+                        }
                     }
-                }
-                if(newboxes.predictions.length > 0){
-                    drawRect(newboxes, ctx);
-                    drawRect(ctx);
+                    if(newboxes.predictions.length > 0){
+                        //console.log(videoWidth + ", " + videoHeight)
+                        drawRect(newboxes, ctx, videoWidth, videoHeight);
+                        drawRect(ctx);
+                    }
                 }
             }
         }, 0));
@@ -270,8 +223,11 @@ function App() {
                 if(state.labels.every(r => boxes.current.predictions.some(e => e.name === r))){
                     if(counter < detectsNeeded) setCounter((counter) => counter + 1);
                 }
+                else {
+                    setCounter(0);
+                }
             }
-            else setCounter(0)
+            else setCounter(0);
             ///console.log(counter)
         }
         detectFlag.current = true;
@@ -338,10 +294,6 @@ function App() {
                     <Webcam
                         ref={webcamRef}
                         muted={true}
-                        //height={size.height}
-                        //width={size.width}
-                        //video={{ facingMode: "user"}}
-                        //video={{ facingMode: { exact: "environment" } }}
                         videoConstraints={{ deviceId,
                             height: 960,
                             width: 1280,
@@ -357,27 +309,25 @@ function App() {
                             objectFit: "cover",
                             objectPosition: "center"
                         }}
-                        //className="webcamCapture"
-                        /*
-                        style={{
-                            position: "absolute",
-                            marginLeft: "auto",
-                            marginRight: "auto",
-                            left: 0,
-                            right: 0,
-                            //width: 640,
-                            //height: 800,
-                        }} */
                     />
                 ) : (
-                    <img src={screenshot} alt="screenshot" style={{
-                        position: "fixed",
-                        width: "100%",
-                        height: "100%",
-                        left: "0%",
-                        objectFit: "cover",
-                        objectPosition: "center"
-                    }}/>
+                    <>
+                        <div style={{position: "relative", zIndex: "3",}} onClick={handleRetry}>
+                            <HtmlTooltip placement="left" title={<Typography color="inherit">Retry Model</Typography>}>
+                                <div style={{float: "left", bottom: "0px", marginLeft: "1%", marginTop: "1%", height: "40px", width: "40px"}}>
+                                    <BsArrowRepeat style={{height: "40px", width: "40px", color: "white", backgroundColor: "rgb(23, 43, 77)", borderRadius: "100%"}}/>
+                                </div>
+                            </HtmlTooltip>
+                        </div>
+                        <img src={screenshot} alt="screenshot" style={{
+                            position: "fixed",
+                            width: "100%",
+                            height: "100%",
+                            left: "0%",
+                            objectFit: "cover",
+                            objectPosition: "center"
+                        }}/>
+                    </>
                 )}
                 <canvas
                     ref={canvasRef}
@@ -391,9 +341,8 @@ function App() {
                     }}
                 />
                 {open === true ?
-                    <div style={{zIndex: "2", position: "fixed", justifyContent: "center", textAlign: "center", verticalAlign: "middle"}}
-                        className="ending">
-                        <div className="title">{"Detected"}</div>
+                    <div style={{zIndex: "2", position: "relative", display: "flex", justifyContent: "center", textAlign: "center", verticalAlign: "middle"}}>
+                        <div style={{ padding: "10px", backgroundColor: "#F4F5F7", marginTop: "5px"}} className="detected">{"Detected"}</div>
                     </div> : null}
             </div>
         </>

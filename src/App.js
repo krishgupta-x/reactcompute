@@ -164,6 +164,8 @@ function App() {
         console.log()
         console.log(window.localStorage.getItem("projectArr"))
         console.log(window.localStorage.getItem("projectArr") === "[]")
+
+        //*FIX (|| true)*
         if(!window.localStorage.getItem("projectArr") || window.localStorage.getItem("projectArr") === "[]" || true){
             console.log("bye")
             var token = await getToken();

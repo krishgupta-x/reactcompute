@@ -108,7 +108,8 @@ body {
 }
 
 .percent {
-    padding-top: 30px;
+    padding: 5px 5px 5px 5px;
+    margin-top: 25px;
     align-items: center;
     text-align: center;
     color: black;

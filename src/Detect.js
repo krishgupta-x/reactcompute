@@ -45,7 +45,7 @@ function App() {
     const [interval2, setInterval2] = useState("");
 
     const [flag, setFlag] = useState(false);
-    const [fps, setFPS] = useState("Loading Predictions");
+    const [fps, setFPS] = useState("Loading Model");
 
     const [counter, setCounter] = useState(0);
     const [screenshot, setScreenshot] = useState(null);
@@ -134,7 +134,7 @@ function App() {
 
     function handleRetry() {
         setOpen(false);
-        setFPS("Loading Predictions");
+        setFPS("Loading Model");
         first = true;
         boxes.current = null;
         setCounter(0);
@@ -211,23 +211,26 @@ function App() {
             canvasRef.current.height = videoHeight;
 
             const api = await predictions(screen);
-            if(first){
-                t1 = performance.now();
-                setFPS("Load Time: " +(t1 - t0).toFixed(3) + " ms");
-                first = false;
-            }
-            if(api != "error") {
-                boxes.current = api;
-            }
-            if(boxes.current !== undefined && boxes.current.predictions !== undefined && boxes.current.predictions.length !== 0){
-                if(state.labels.every(r => boxes.current.predictions.some(e => e.name === r))){
-                    if(counter < detectsNeeded) setCounter((counter) => counter + 1);
+            if(api === 401) navigate("/")
+            if(api !== 500 && api !== 401){
+                if(first){
+                    t1 = performance.now();
+                    setFPS("Load Time: " +(t1 - t0).toFixed(3) + " ms");
+                    first = false;
                 }
-                else {
-                    setCounter(0);
+                if(api != "error") {
+                    boxes.current = api;
                 }
+                if(boxes.current !== undefined && boxes.current.predictions !== undefined && boxes.current.predictions.length !== 0){
+                    if(state.labels.every(r => boxes.current.predictions.some(e => e.name === r))){
+                        if(counter < detectsNeeded) setCounter((counter) => counter + 1);
+                    }
+                    else {
+                        setCounter(0);
+                    }
+                }
+                else setCounter(0);
             }
-            else setCounter(0);
             ///console.log(counter)
         }
         detectFlag.current = true;
@@ -254,7 +257,7 @@ function App() {
 				'Content-Type': 'multipart/form-data',
 				'Authorization': 'Bearer ' + state.token
             }
-		}).then((response) => response.data).catch(error => console.log());
+		}).then((response) => response.data).catch((error) => error.response.data.status);
     }
 
     useEffect(() => { drawBoxes() }, []);
@@ -273,10 +276,10 @@ function App() {
                     <div style={{ paddingRight: 20 }} className="right">Predictions: {counter}</div>
                 </Toolbar>
             </div>
-            {fps === 'Loading Predictions' &&
-                <div style={{position: "fixed", top: "50%", transform: "translateY(-50%)", left: "50%", right: "50%"}} className="spinner-container">
+            {fps === 'Loading Model' &&
+                <div style={{position: "absolute", zIndex: "2", top: "50%", transform: "translateY(-50%)", left: "50%", right: "50%"}} className="spinner-container">
                     <div className="loading-spinner"></div>
-                    <div className="percent">{fps}</div>
+                    <div style={{backgroundColor: "red"}} className="percent">{fps}</div>
                 </div>
             }
             <div className="screen">
